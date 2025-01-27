@@ -13,6 +13,10 @@ export interface Paper {
 
 export interface PaginatedPapersResponse {
   page_obj: Paper[];
+  keywords: string[];
+  selected_keyword: string;
+  published_filter: "no" | "yes";
+  title_search: string;
 }
 
 export interface SimilarPapersResponse {
@@ -39,7 +43,7 @@ export class PaperMateAPI {
     }
     console.log("fetch papers");
     const data = await response.json();
-    return data.page_obj;
+    return data;
   }
 
   // 获取单个论文详情
