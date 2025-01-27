@@ -82,12 +82,13 @@ function App() {
             </div>
           ) : (
             papersResponse?.page_obj.map((paper) => (
-              <motion.div key={paper.entry_id} layout>
-                <motion.div
-                  layoutId={`card-${paper.entry_id}`}
-                  className="rounded-lg border bg-card text-card-foreground shadow-sm mb-6 hover:shadow-lg transition-shadow cursor-pointer"
-                  onClick={() => handlePaperClick(paper)}
-                >
+              <motion.div
+                key={paper.entry_id}
+                layoutId={`card-${paper.entry_id}`}
+                className="mb-6 hover:shadow-lg transition-shadow cursor-pointer"
+                onClick={() => handlePaperClick(paper)}
+              >
+                <Card>
                   <CardHeader>
                     <CardTitle className="text-lg">{paper.title}</CardTitle>
                     <p className="text-sm text-muted-foreground">
@@ -120,27 +121,10 @@ function App() {
                       </div>
                     </div>
                   </CardContent>
-                </motion.div>
+                </Card>
               </motion.div>
             ))
           )}
-        </div>
-
-        {/* 分页控制 */}
-        <div className="mt-6 flex justify-center space-x-4">
-          <Button
-            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
-            disabled={currentPage === 1 || isLoading}
-          >
-            上一页
-          </Button>
-          <span className="px-4 py-2">第 {currentPage} 页</span>
-          <Button
-            onClick={() => setCurrentPage((p) => p + 1)}
-            disabled={isLoading}
-          >
-            下一页
-          </Button>
         </div>
       </main>
 
@@ -160,7 +144,7 @@ function App() {
             {/* 内容卡片 */}
             <motion.div
               layoutId={`card-${selectedPaperForDetail.entry_id}`}
-              className="fixed inset-4 lg:inset-[10%] bg-card rounded-lg shadow-xl overflow-y-auto"
+              className="fixed inset-4 lg:inset-[10%] bg-background rounded-lg shadow-xl overflow-y-auto"
             >
               <div className="h-full p-6">
                 <div className="flex flex-col lg:flex-row gap-6 h-full">
@@ -183,12 +167,7 @@ function App() {
                         <span className="text-2xl">×</span>
                       </Button>
                     </div>
-                    <motion.div
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      exit={{ opacity: 0 }}
-                      className="space-y-6"
-                    >
+                    <div className="space-y-6">
                       <div>
                         <h4 className="font-semibold mb-2">摘要</h4>
                         <p className="text-sm leading-relaxed">
@@ -220,16 +199,11 @@ function App() {
                           </a>
                         </Button>
                       </div>
-                    </motion.div>
+                    </div>
                   </div>
 
                   {/* 右侧/下方：推荐论文列表 */}
-                  <motion.div
-                    initial={{ opacity: 0, x: 20 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    exit={{ opacity: 0, x: 20 }}
-                    className="w-full lg:w-80 border-t lg:border-l lg:border-t-0 pt-6 lg:pt-0 lg:pl-6"
-                  >
+                  <div className="w-full lg:w-80 border-t lg:border-l lg:border-t-0 pt-6 lg:pt-0 lg:pl-6">
                     <h3 className="font-semibold mb-4">相关论文</h3>
                     <div className="space-y-4">
                       {recommendedPapers.map((paper) => (
@@ -249,13 +223,30 @@ function App() {
                         </Card>
                       ))}
                     </div>
-                  </motion.div>
+                  </div>
                 </div>
               </div>
             </motion.div>
           </>
         )}
       </AnimatePresence>
+
+      {/* 分页控制 */}
+      <div className="mt-6 flex justify-center space-x-4">
+        <Button
+          onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+          disabled={currentPage === 1 || isLoading}
+        >
+          上一页
+        </Button>
+        <span className="px-4 py-2">第 {currentPage} 页</span>
+        <Button
+          onClick={() => setCurrentPage((p) => p + 1)}
+          disabled={isLoading}
+        >
+          下一页
+        </Button>
+      </div>
     </div>
   );
 }
