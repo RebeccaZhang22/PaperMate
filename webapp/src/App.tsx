@@ -16,6 +16,8 @@ function App() {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchKeyword, setSearchKeyword] = useState("");
   const [selectedPaper, setSelectedPaper] = useState<Paper | null>(null);
+  const [selectedPaperForDetail, setSelectedPaperForDetail] =
+    useState<Paper | null>(null);
 
   const queryClient = useQueryClient();
 
@@ -77,30 +79,41 @@ function App() {
 
       {/* 主要内容区域 */}
       <main className="max-w-7xl mx-auto px-4 py-6">
-        {/* 论文列表 */}
-        <div className="grid gap-6">
+        {/* 使用 masonry 布局的论文列表 */}
+        <div className="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6 [&>*]:break-inside-avoid">
           {isLoading ? (
             <div className="text-center py-8">
               <Loader2 className="h-12 w-12 animate-spin mx-auto" />
             </div>
           ) : (
             papersResponse?.page_obj.map((paper) => (
-              <Card key={paper.entry_id}>
+              <Card
+                key={paper.entry_id}
+                className="mb-6 hover:shadow-lg transition-shadow cursor-pointer"
+                onClick={() => setSelectedPaperForDetail(paper)}
+              >
                 <CardHeader>
-                  <CardTitle>{paper.title}</CardTitle>
-                  <p className="text-muted-foreground">{paper.authors}</p>
+                  <CardTitle className="text-lg">{paper.title}</CardTitle>
+                  <p className="text-sm text-muted-foreground">
+                    {paper.authors}
+                  </p>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-muted-foreground line-clamp-3">
+                  <p className="text-sm text-muted-foreground line-clamp-3">
                     {paper.abstract}
                   </p>
                   <div className="flex items-center justify-between mt-4">
                     <div className="text-sm text-muted-foreground">
                       发布时间: {new Date(paper.published).toLocaleDateString()}
                     </div>
-                    <div className="space-x-4">
+                    <div className="space-x-2">
                       {paper.pdf_url && (
-                        <Button variant="link" asChild>
+                        <Button
+                          variant="link"
+                          size="sm"
+                          asChild
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           <a
                             href={paper.pdf_url}
                             target="_blank"
@@ -111,7 +124,12 @@ function App() {
                         </Button>
                       )}
                       {paper.code_url && (
-                        <Button variant="link" asChild>
+                        <Button
+                          variant="link"
+                          size="sm"
+                          asChild
+                          onClick={(e) => e.stopPropagation()}
+                        >
                           <a
                             href={paper.code_url}
                             target="_blank"
@@ -121,22 +139,6 @@ function App() {
                           </a>
                         </Button>
                       )}
-                      <Button
-                        variant="outline"
-                        onClick={() =>
-                          similarPapersMutation.mutate(paper.entry_id)
-                        }
-                        disabled={similarPapersMutation.isPending}
-                      >
-                        {similarPapersMutation.isPending ? (
-                          <>
-                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                            查找中...
-                          </>
-                        ) : (
-                          "查找相似"
-                        )}
-                      </Button>
                     </div>
                   </div>
                 </CardContent>
@@ -162,25 +164,60 @@ function App() {
           </Button>
         </div>
 
-        {/* 相似论文弹窗 */}
+        {/* 论文详情弹窗 */}
         <Dialog
-          open={!!selectedPaper}
-          onOpenChange={() => setSelectedPaper(null)}
+          open={!!selectedPaperForDetail}
+          onOpenChange={() => setSelectedPaperForDetail(null)}
         >
-          <DialogContent className="max-w-3xl">
+          <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle>相似论文</DialogTitle>
+              <DialogTitle>{selectedPaperForDetail?.title}</DialogTitle>
+              <p className="text-muted-foreground">
+                {selectedPaperForDetail?.authors}
+              </p>
             </DialogHeader>
             <div className="space-y-4">
-              {similarPapersMutation.data?.recommended_papers.map((paper) => (
-                <div key={paper.entry_id} className="border-b pb-4">
-                  <h4 className="font-semibold">{paper.title}</h4>
-                  <p className="text-sm text-muted-foreground">
-                    {paper.authors}
-                  </p>
-                  <p className="text-sm mt-2">{paper.abstract}</p>
-                </div>
-              ))}
+              <div>
+                <h4 className="font-semibold mb-2">摘要</h4>
+                <p className="text-sm">{selectedPaperForDetail?.abstract}</p>
+              </div>
+              <div>
+                <h4 className="font-semibold mb-2">分类</h4>
+                <p className="text-sm">{selectedPaperForDetail?.categories}</p>
+              </div>
+              <div>
+                <h4 className="font-semibold mb-2">发布时间</h4>
+                <p className="text-sm">
+                  {selectedPaperForDetail?.published &&
+                    new Date(
+                      selectedPaperForDetail.published
+                    ).toLocaleDateString()}
+                </p>
+              </div>
+              <div className="flex gap-4">
+                {selectedPaperForDetail?.pdf_url && (
+                  <Button asChild>
+                    <a
+                      href={selectedPaperForDetail.pdf_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      查看 PDF
+                    </a>
+                  </Button>
+                )}
+                {selectedPaperForDetail?.code_url && (
+                  <Button variant="outline" asChild>
+                    <a
+                      href={selectedPaperForDetail.code_url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      查看代码
+                    </a>
+                  </Button>
+                )}
+              </div>
             </div>
           </DialogContent>
         </Dialog>
