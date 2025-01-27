@@ -10,8 +10,8 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Loader2 } from "lucide-react";
-import { useQuery, useMutation } from "@tanstack/react-query";
-import { Label } from "./components/ui/label";
+import { useQuery } from "@tanstack/react-query";
+
 function App() {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchKeyword, setSearchKeyword] = useState("");
@@ -34,18 +34,20 @@ function App() {
       }),
   });
 
-  // 查找相似论文
-  const similarPapersMutation = useMutation({
-    mutationFn: paperMateAPI.findSimilarPapers,
-    mutationKey: ["similarPapers", selectedPaperForDetail?.entry_id],
-    onSuccess: (data) => {
-      setRecommendedPapers(data.recommended_papers);
-    },
-  });
+  // 获取推荐文章的函数
+  const getRecommendedPapers = (currentPaper: Paper) => {
+    // 简单实现：从当前列表中随机选择3篇不同的文章
+    const otherPapers =
+      papersResponse?.page_obj.filter(
+        (p) => p.entry_id !== currentPaper.entry_id
+      ) || [];
+    return otherPapers.sort(() => Math.random() - 0.5).slice(0, 3);
+  };
 
-  const onCardClick = (paper: Paper) => {
+  // 修改打开详情的处理函数
+  const handlePaperClick = (paper: Paper) => {
     setSelectedPaperForDetail(paper);
-    similarPapersMutation.mutate(paper.entry_id);
+    setRecommendedPapers(getRecommendedPapers(paper));
   };
 
   if (error) {
@@ -89,7 +91,7 @@ function App() {
               <Card
                 key={paper.entry_id}
                 className="mb-6 hover:shadow-lg transition-shadow cursor-pointer"
-                onClick={() => onCardClick(paper)}
+                onClick={() => handlePaperClick(paper)}
               >
                 <CardHeader>
                   <CardTitle className="text-lg">{paper.title}</CardTitle>
@@ -150,45 +152,80 @@ function App() {
         {/* 论文详情弹窗 */}
         <Dialog
           open={!!selectedPaperForDetail}
-          onOpenChange={() => setSelectedPaperForDetail(null)}
+          onOpenChange={(open) => {
+            if (!open) {
+              setSelectedPaperForDetail(null);
+              setRecommendedPapers([]);
+            }
+          }}
         >
-          <DialogContent className="max-w-3xl max-h-[80vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>{selectedPaperForDetail?.title}</DialogTitle>
-              <p className="text-muted-foreground">
-                {selectedPaperForDetail?.authors}
-              </p>
-            </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <h4 className="font-semibold mb-2">摘要</h4>
-                <p className="text-sm">{selectedPaperForDetail?.abstract}</p>
+          <DialogContent className="max-w-6xl max-h-[80vh] overflow-y-auto">
+            <div className="flex flex-col lg:flex-row gap-6">
+              {/* 左侧/上方：当前论文详情 */}
+              <div className="flex-1 pt-6 lg:pt-0">
+                <DialogHeader>
+                  <DialogTitle>{selectedPaperForDetail?.title}</DialogTitle>
+                  <p className="text-muted-foreground">
+                    {selectedPaperForDetail?.authors}
+                  </p>
+                </DialogHeader>
+                <div className="space-y-4 mt-4">
+                  <div>
+                    <h4 className="font-semibold mb-2">摘要</h4>
+                    <p className="text-sm">
+                      {selectedPaperForDetail?.abstract}
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-2">分类</h4>
+                    <p className="text-sm">
+                      {selectedPaperForDetail?.categories}
+                    </p>
+                  </div>
+                  <div>
+                    <h4 className="font-semibold mb-2">发布时间</h4>
+                    <p className="text-sm">
+                      {selectedPaperForDetail?.published &&
+                        new Date(
+                          selectedPaperForDetail.published
+                        ).toLocaleDateString()}
+                    </p>
+                  </div>
+                  <div className="flex gap-4">
+                    {selectedPaperForDetail?.entry_id && (
+                      <Button asChild>
+                        <a
+                          href={selectedPaperForDetail.entry_id}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                        >
+                          查看原文
+                        </a>
+                      </Button>
+                    )}
+                  </div>
+                </div>
               </div>
-              <div>
-                <h4 className="font-semibold mb-2">分类</h4>
-                <Label>{selectedPaperForDetail?.categories}</Label>
-              </div>
-              <div>
-                <h4 className="font-semibold mb-2">发布时间</h4>
-                <p className="text-sm">
-                  {selectedPaperForDetail?.published &&
-                    new Date(
-                      selectedPaperForDetail.published
-                    ).toLocaleDateString()}
-                </p>
-              </div>
-              <div className="flex gap-4">
-                {selectedPaperForDetail?.entry_id && (
-                  <Button asChild>
-                    <a
-                      href={selectedPaperForDetail.entry_id}
-                      target="_blank"
-                      rel="noopener noreferrer"
+
+              {/* 右侧/下方：推荐论文列表 */}
+              <div className="w-full lg:w-80 border-t lg:border-l lg:border-t-0 pt-6 lg:pt-0 lg:pl-6">
+                <h3 className="font-semibold mb-4">相关论文</h3>
+                <div className="space-y-4">
+                  {recommendedPapers.map((paper) => (
+                    <Card
+                      key={paper.entry_id}
+                      className="cursor-pointer hover:shadow-md transition-shadow"
+                      onClick={() => handlePaperClick(paper)}
                     >
-                      查看原文
-                    </a>
-                  </Button>
-                )}
+                      <CardHeader className="p-4">
+                        <CardTitle className="text-sm">{paper.title}</CardTitle>
+                        <p className="text-xs text-muted-foreground line-clamp-2">
+                          {paper.abstract}
+                        </p>
+                      </CardHeader>
+                    </Card>
+                  ))}
+                </div>
               </div>
             </div>
           </DialogContent>
