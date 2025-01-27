@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Paper Detail</title>
+</head>
+<body>
+    <h1>{{ paper.title }}</h1>
+    <p><strong>ID:</strong> {{ paper.entry_id }}</p>
+    <p><strong>Published:</strong> {{ paper.published }}</p>
+    <p><strong>Authors:</strong> {{ paper.authors }}</p>
+    <p><strong>Comment:</strong> {{ paper.comment }}</p>
+    <p><strong>Primary Category:</strong> {{ paper.primary_category }}</p>
+    <p><strong>Categories:</strong> {{ paper.categories }}</p>
+    <p><strong>Abstract:</strong> {{ paper.abstract }}</p>
+
+    <a href="{% url 'main_page' %}">Back to Paper List</a>
+</body>
+</html>

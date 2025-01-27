@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Selected and Recommended Papers</title>
+</head>
+<body>
+    <h1>Selected Paper</h1>
+
+    <h3>
+        <a href="{% url 'paper_detail' paper_id=selected_paper.entry_id %}">{{ selected_paper.title }}</a>
+    </h3>
+    <p><strong>Comment:</strong> {{ selected_paper.comment }}</p>
+    <p><strong>Keywords:</strong> {{ selected_paper.keywords }}</p>
+    <p><strong>Abstract:</strong> {{ selected_paper.abstract }}</p>
+
+    <h2>Recommended Papers</h2>
+    <ul>
+        
+    {% for paper in recommended_papers %}
+        <li>
+            <h3>
+                <a href="{% url 'paper_detail' paper_id=paper.entry_id %}">{{ paper.title }}</a>
+            </h3>
+            <p><strong>Comment:</strong> {{ paper.comment }}</p>
+            <p><strong>Keywords:</strong> {{ paper.keywords }}</p>
+            <p><strong>Abstract:</strong> {{ paper.abstract }}</p>
+        </li>
+    {% endfor %}
+    </ul>
+
+    <a href="{% url 'main_page' %}">Back to Paper List</a>
+</body>
+</html>
