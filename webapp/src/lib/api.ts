@@ -9,10 +9,8 @@ export interface Paper {
   keywords: string;
   published: string;
   comment: string;
-  pdf_url?: string;
-  code_url?: string;
-  primary_category: string;
   categories: string;
+  primary_category: string;
 }
 
 export interface PaginatedPapersResponse {

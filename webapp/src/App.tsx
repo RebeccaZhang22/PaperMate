@@ -10,16 +10,14 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Loader2 } from "lucide-react";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-
+import { useQuery, useMutation } from "@tanstack/react-query";
+import { Label } from "./components/ui/label";
 function App() {
   const [currentPage, setCurrentPage] = useState(1);
   const [searchKeyword, setSearchKeyword] = useState("");
-  const [selectedPaper, setSelectedPaper] = useState<Paper | null>(null);
   const [selectedPaperForDetail, setSelectedPaperForDetail] =
     useState<Paper | null>(null);
-
-  const queryClient = useQueryClient();
+  const [recommendedPapers, setRecommendedPapers] = useState<Paper[]>([]);
 
   // 获取论文列表
   const {
@@ -39,15 +37,16 @@ function App() {
   // 查找相似论文
   const similarPapersMutation = useMutation({
     mutationFn: paperMateAPI.findSimilarPapers,
+    mutationKey: ["similarPapers", selectedPaperForDetail?.entry_id],
     onSuccess: (data) => {
-      setSelectedPaper(data.selected_paper);
-      // 可选：将结果缓存到 query cache
-      queryClient.setQueryData(
-        ["similarPapers", data.selected_paper.entry_id],
-        data
-      );
+      setRecommendedPapers(data.recommended_papers);
     },
   });
+
+  const onCardClick = (paper: Paper) => {
+    setSelectedPaperForDetail(paper);
+    similarPapersMutation.mutate(paper.entry_id);
+  };
 
   if (error) {
     return (
@@ -90,7 +89,7 @@ function App() {
               <Card
                 key={paper.entry_id}
                 className="mb-6 hover:shadow-lg transition-shadow cursor-pointer"
-                onClick={() => setSelectedPaperForDetail(paper)}
+                onClick={() => onCardClick(paper)}
               >
                 <CardHeader>
                   <CardTitle className="text-lg">{paper.title}</CardTitle>
@@ -99,48 +98,32 @@ function App() {
                   </p>
                 </CardHeader>
                 <CardContent>
-                  <p className="text-sm text-muted-foreground line-clamp-3">
-                    {paper.abstract}
-                  </p>
-                  <div className="flex items-center justify-between mt-4">
-                    <div className="text-sm text-muted-foreground">
-                      发布时间: {new Date(paper.published).toLocaleDateString()}
-                    </div>
-                    <div className="space-x-2">
-                      {paper.pdf_url && (
+                  <main className=" ">
+                    <p className="text-sm text-muted-foreground line-clamp-3">
+                      {paper.abstract}
+                    </p>
+                    <div className="flex items-center justify-between mt-4">
+                      <div className="text-sm text-muted-foreground">
+                        发布时间:{" "}
+                        {new Date(paper.published).toLocaleDateString()}
+                      </div>
+                      <div className="space-x-2">
                         <Button
-                          variant="link"
-                          size="sm"
+                          variant="outline"
                           asChild
                           onClick={(e) => e.stopPropagation()}
                         >
                           <a
-                            href={paper.pdf_url}
+                            href={paper.entry_id}
                             target="_blank"
                             rel="noopener noreferrer"
                           >
-                            PDF
+                            查看原文
                           </a>
                         </Button>
-                      )}
-                      {paper.code_url && (
-                        <Button
-                          variant="link"
-                          size="sm"
-                          asChild
-                          onClick={(e) => e.stopPropagation()}
-                        >
-                          <a
-                            href={paper.code_url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                          >
-                            代码
-                          </a>
-                        </Button>
-                      )}
+                      </div>
                     </div>
-                  </div>
+                  </main>
                 </CardContent>
               </Card>
             ))
@@ -183,7 +166,7 @@ function App() {
               </div>
               <div>
                 <h4 className="font-semibold mb-2">分类</h4>
-                <p className="text-sm">{selectedPaperForDetail?.categories}</p>
+                <Label>{selectedPaperForDetail?.categories}</Label>
               </div>
               <div>
                 <h4 className="font-semibold mb-2">发布时间</h4>
@@ -195,25 +178,14 @@ function App() {
                 </p>
               </div>
               <div className="flex gap-4">
-                {selectedPaperForDetail?.pdf_url && (
+                {selectedPaperForDetail?.entry_id && (
                   <Button asChild>
                     <a
-                      href={selectedPaperForDetail.pdf_url}
+                      href={selectedPaperForDetail.entry_id}
                       target="_blank"
                       rel="noopener noreferrer"
                     >
-                      查看 PDF
-                    </a>
-                  </Button>
-                )}
-                {selectedPaperForDetail?.code_url && (
-                  <Button variant="outline" asChild>
-                    <a
-                      href={selectedPaperForDetail.code_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                    >
-                      查看代码
+                      查看原文
                     </a>
                   </Button>
                 )}
