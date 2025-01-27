@@ -1,0 +1,158 @@
+openapi: 3.0.0
+info:
+  title: PaperMate API
+  description: PaperMate 论文管理系统的 API 文档
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000
+    description: 本地开发服务器
+
+paths:
+  /:
+    get:
+      summary: 获取主页面数据
+      description: 返回带有分页的论文列表，支持关键词过滤和年份筛选
+      parameters:
+        - name: keyword
+          in: query
+          description: 搜索关键词（在标题和摘要中搜索）
+          required: false
+          schema:
+            type: string
+        - name: published_filter
+          in: query
+          description: 是否只显示最近发表的论文（2023-2025）
+          required: false
+          schema:
+            type: string
+            enum: [yes, no]
+        - name: title_search
+          in: query
+          description: 标题搜索关键词
+          required: false
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: 页码
+          required: false
+          schema:
+            type: integer
+            default: 1
+      responses:
+        "200":
+          description: 成功返回论文列表
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  page_obj:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Paper"
+
+  /papers/:
+    get:
+      summary: 获取论文列表
+      description: 返回分页的论文列表
+      parameters:
+        - name: page
+          in: query
+          description: 页码
+          required: false
+          schema:
+            type: integer
+            default: 1
+      responses:
+        "200":
+          description: 成功返回论文列表
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Paper"
+
+    post:
+      summary: 查找相似论文
+      description: 根据指定论文查找相似的论文
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              properties:
+                find_similar_paper:
+                  type: string
+                  description: 目标论文的 ID
+      responses:
+        "200":
+          description: 成功返回相似论文列表
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  selected_paper:
+                    $ref: "#/components/schemas/Paper"
+                  recommended_papers:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Paper"
+
+  /paper/{paper_id}:
+    get:
+      summary: 获取论文详情
+      description: 根据论文 ID 获取详细信息
+      parameters:
+        - name: paper_id
+          in: path
+          required: true
+          description: 论文的唯一标识符
+          schema:
+            type: string
+      responses:
+        "200":
+          description: 成功返回论文详情
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Paper"
+        "404":
+          description: 论文未找到
+
+components:
+  schemas:
+    Paper:
+      type: object
+      properties:
+        entry_id:
+          type: string
+          description: 论文的唯一标识符
+        title:
+          type: string
+          description: 论文标题
+        abstract:
+          type: string
+          description: 论文摘要
+        authors:
+          type: string
+          description: 论文作者
+        keywords:
+          type: string
+          description: 论文关键词
+        published:
+          type: string
+          format: date-time
+          description: 发布时间
+        comment:
+          type: string
+          description: 论文备注
+        pdf_url:
+          type: string
+          description: PDF 下载链接
+        code_url:
+          type: string
+          description: 代码仓库链接
