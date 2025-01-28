@@ -30,6 +30,7 @@ export interface GetPapersParams {
   page: number;
   keyword: string;
   published_filter: "no" | "yes";
+  title_search?: string;
 }
 
 // API 配置
@@ -44,7 +45,10 @@ const axiosInstance = axios.create({
   },
 });
 
-// API 类
+/**
+ * PaperMate API 类
+ * 提供论文相关的 API 接口
+ */
 export class PaperMateAPI {
   private baseUrl: string;
   private axios;
@@ -54,7 +58,11 @@ export class PaperMateAPI {
     this.axios = axiosInstance;
   }
 
-  // 获取论文列表
+  /**
+   * 获取论文列表
+   * @param params 查询参数
+   * @returns 分页的论文列表响应
+   */
   async getPapers(params: GetPapersParams): Promise<PaginatedPapersResponse> {
     try {
       const { data } = await this.axios.get("/papers/", {
@@ -62,6 +70,7 @@ export class PaperMateAPI {
           page: params.page,
           keyword: params.keyword,
           published_filter: params.published_filter,
+          title_search: params.title_search,
         },
       });
       return data;
@@ -75,10 +84,14 @@ export class PaperMateAPI {
     }
   }
 
-  // 获取单个论文详情
+  /**
+   * 获取单个论文详情
+   * @param paperId 论文ID
+   * @returns 论文详情
+   */
   async getPaper(paperId: string): Promise<Paper> {
     try {
-      const { data } = await this.axios.get(`/paper/${paperId}`);
+      const { data } = await this.axios.get(`/papers/${paperId}/`);
       return data;
     } catch (error) {
       if (axios.isAxiosError(error)) {
@@ -93,17 +106,16 @@ export class PaperMateAPI {
     }
   }
 
-  // 查找相似论文
-  async findSimilarPapers(paperId: string): Promise<SimilarPapersResponse> {
+  /**
+   * 获取推荐论文列表
+   * @param paperId 目标论文ID
+   * @returns 推荐论文列表响应
+   */
+  async getRecommendedPapers(paperId: string): Promise<SimilarPapersResponse> {
     try {
-      const formData = new URLSearchParams();
-      formData.append("find_similar_paper", paperId);
-
-      const { data } = await this.axios.post("/papers/", formData, {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-      });
+      const { data } = await this.axios.get(
+        `/papers/${paperId}/recommendations/`
+      );
       return data;
     } catch (error) {
       if (axios.isAxiosError(error)) {
