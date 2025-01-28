@@ -30,6 +30,7 @@ function App() {
 
   // 获取推荐文章
   const getRecommendedPapers = async (paper: Paper) => {
+    setRecommendedPapers([]);
     try {
       const response = await paperMateAPI.getRecommendedPapers(paper.entry_id);
       setRecommendedPapers(response.recommended_papers);
