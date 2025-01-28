@@ -1,13 +1,10 @@
 import { useState } from "react";
 import { Paper } from "./lib/api";
-import { useQueryClient } from "@tanstack/react-query";
 import { Navbar } from "./components/papers/Navbar";
 import { PaperList } from "./components/papers/PaperList";
 import { PaperDetailModal } from "./components/papers/PaperDetailModal";
-import { Pagination } from "./components/papers/Pagination";
 
 function App() {
-  const queryClient = useQueryClient();
   const [selectedPaperForDetail, setSelectedPaperForDetail] =
     useState<Paper | null>(null);
 
@@ -23,12 +20,6 @@ function App() {
         paper={selectedPaperForDetail}
         onClose={() => setSelectedPaperForDetail(null)}
         onPaperClick={setSelectedPaperForDetail}
-      />
-
-      <Pagination
-        onPageChange={(page) => {
-          queryClient.setQueryData(["pageParams"], { page });
-        }}
       />
     </div>
   );

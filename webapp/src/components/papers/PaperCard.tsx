@@ -31,16 +31,6 @@ export function PaperCard({ paper, onClick }: PaperCardProps) {
             <div className="space-x-2 w-full flex md:w-auto justify-between md:justify-end">
               <Button
                 variant="outline"
-                className="md:hidden"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onClick(paper);
-                }}
-              >
-                查看详情
-              </Button>
-              <Button
-                variant="outline"
                 asChild
                 onClick={(e) => e.stopPropagation()}
               >
