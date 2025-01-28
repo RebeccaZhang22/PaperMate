@@ -19,7 +19,7 @@ export function PaperDetailModal({
   if (!paper) return null;
 
   return (
-    <AnimatePresence>
+    <AnimatePresence mode="wait">
       {paper && (
         <>
           {/* 背景遮罩 */}
@@ -27,6 +27,7 @@ export function PaperDetailModal({
             initial={{ opacity: 0 }}
             animate={{ opacity: 0.5 }}
             exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
             className="fixed inset-0 bg-black"
             onClick={onClose}
           />
@@ -34,6 +35,7 @@ export function PaperDetailModal({
           {/* 内容卡片 */}
           <motion.div
             layoutId={`card-${paper.entry_id}`}
+            transition={{ duration: 0.3 }}
             className="fixed inset-4 lg:inset-[10%] bg-background rounded-lg shadow-xl overflow-y-auto"
           >
             <div className="h-full p-6">
