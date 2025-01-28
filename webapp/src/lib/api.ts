@@ -114,9 +114,11 @@ export class PaperMateAPI {
    */
   async getRecommendedPapers(paperId: string): Promise<SimilarPapersResponse> {
     try {
-      const { data } = await this.axios.get(
-        `/papers/${paperId}/recommendations/`
-      );
+      const { data } = await this.axios.get("/papers/recommendations/", {
+        params: {
+          paper_id: paperId,
+        },
+      });
       return data;
     } catch (error) {
       if (axios.isAxiosError(error)) {

@@ -82,12 +82,19 @@ def paper_detail(request, paper_id):
         return Response({'error': '论文未找到'}, status=status.HTTP_404_NOT_FOUND)
 
 @api_view(['GET'])
-def paper_recommendations(request, paper_id):
+def paper_recommendations(request):
     """
     获取论文推荐列表
-    URL 参数:
+    GET 参数:
     - paper_id: 目标论文ID
     """
+    paper_id = request.GET.get('paper_id')
+    if not paper_id:
+        return Response(
+            {'error': '缺少必要参数 paper_id'}, 
+            status=status.HTTP_400_BAD_REQUEST
+        )
+
     try:
         # 获取目标论文
         paper = Papers.objects.get(entry_id=paper_id)
@@ -111,5 +118,8 @@ def paper_recommendations(request, paper_id):
             'recommended_papers': PaperSerializer(recommended_papers, many=True).data
         })
     except Papers.DoesNotExist:
-        return Response({'error': '论文未找到'}, status=status.HTTP_404_NOT_FOUND)
+        return Response(
+            {'error': '论文未找到'}, 
+            status=status.HTTP_404_NOT_FOUND
+        )
 
