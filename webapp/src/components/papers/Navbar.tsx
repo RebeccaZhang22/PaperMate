@@ -1,11 +1,20 @@
 import { Input } from "@/components/ui/input";
+import { useQueryClient } from "@tanstack/react-query";
+import { useEffect, useState } from "react";
+import { useDebounce } from "@/hooks/useDebounce";
 
-interface NavbarProps {
-  searchKeyword: string;
-  onSearchChange: (value: string) => void;
-}
+export function Navbar() {
+  const queryClient = useQueryClient();
+  const [searchKeyword, setSearchKeyword] = useState("");
+  const debouncedSearch = useDebounce(searchKeyword, 300);
 
-export function Navbar({ searchKeyword, onSearchChange }: NavbarProps) {
+  // 当搜索关键词变化时，更新查询参数
+  useEffect(() => {
+    queryClient.setQueryData(["searchParams"], { keyword: debouncedSearch });
+    // 使查询无效，触发重新获取
+    queryClient.invalidateQueries({ queryKey: ["papers"] });
+  }, [debouncedSearch, queryClient]);
+
   return (
     <nav className="border-b">
       <div className="max-w-7xl mx-auto px-4 py-4">
@@ -15,7 +24,7 @@ export function Navbar({ searchKeyword, onSearchChange }: NavbarProps) {
             <Input
               type="text"
               value={searchKeyword}
-              onChange={(e) => onSearchChange(e.target.value)}
+              onChange={(e) => setSearchKeyword(e.target.value)}
               placeholder="搜索论文..."
               className="w-full"
             />

@@ -8,20 +8,29 @@ import {
   PaginationPrevious,
 } from "@/components/ui/pagination";
 import { cn } from "@/lib/utils";
+import { useQueryClient } from "@tanstack/react-query";
+import { PaginatedPapersResponse } from "@/lib/api";
+import { useEffect } from "react";
 
 interface PaginationProps {
-  currentPage: number;
-  totalPages: number;
-  isLoading: boolean;
   onPageChange: (page: number) => void;
 }
 
-export function Pagination({
-  currentPage,
-  totalPages,
-  isLoading,
-  onPageChange,
-}: PaginationProps) {
+export function Pagination({ onPageChange }: PaginationProps) {
+  const queryClient = useQueryClient();
+  const papersQuery = queryClient.getQueryState<PaginatedPapersResponse>([
+    "papers",
+  ]);
+  const currentPage =
+    queryClient.getQueryData<{ page: number }>(["pageParams"])?.page || 1;
+  const totalPages = papersQuery?.data?.total_pages || 1;
+  const isLoading = papersQuery?.fetchStatus === "fetching";
+
+  // 当页码变化时，更新查询参数
+  useEffect(() => {
+    queryClient.setQueryData(["pageParams"], { page: currentPage });
+  }, [currentPage, queryClient]);
+
   // 生成要显示的页码数组
   const getPageNumbers = () => {
     const pages = [];
@@ -83,13 +92,19 @@ export function Pagination({
     return pages;
   };
 
+  const handlePageChange = (page: number) => {
+    onPageChange(page);
+    queryClient.setQueryData(["pageParams"], { page });
+    queryClient.invalidateQueries({ queryKey: ["papers"] });
+  };
+
   return (
     <div className="mt-6">
       <ShadcnPagination>
         <PaginationContent className="flex flex-wrap gap-2 justify-center">
           <PaginationItem>
             <PaginationPrevious
-              onClick={() => onPageChange(Math.max(1, currentPage - 1))}
+              onClick={() => handlePageChange(Math.max(1, currentPage - 1))}
               className={cn(
                 "h-9 px-3 md:h-10 md:px-4",
                 isLoading || currentPage === 1
@@ -107,7 +122,7 @@ export function Pagination({
             ) : (
               <PaginationItem key={pageNum}>
                 <PaginationLink
-                  onClick={() => onPageChange(pageNum)}
+                  onClick={() => handlePageChange(pageNum)}
                   isActive={pageNum === currentPage}
                   className={cn(
                     "h-9 w-9 md:h-10 md:w-10",
@@ -127,7 +142,7 @@ export function Pagination({
           <PaginationItem>
             <PaginationNext
               onClick={() =>
-                onPageChange(Math.min(totalPages, currentPage + 1))
+                handlePageChange(Math.min(totalPages, currentPage + 1))
               }
               className={cn(
                 "h-9 px-3 md:h-10 md:px-4",
