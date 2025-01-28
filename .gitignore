@@ -25,25 +25,52 @@ venv/
 env/
 ENV/
 
-# Node
-node_modules/
-dist/
-dist-ssr/
-*.local
-.pnpm-debug.log*
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+
+# Virtual Environment
+venv/
+env/
+ENV/
+.env
+.venv
+env.bak/
+venv.bak/
 
 # IDE
 .idea/
-.vscode/*
-!.vscode/extensions.json
-*.suo
-*.ntvs*
-*.njsproj
-*.sln
-*.sw?
+.vscode/
+*.swp
+*.swo
+*~
+
+# Node
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+.pnpm-debug.log*
+
+# Build
+/build
+/dist
+.next/
+out/
+.nuxt
+.nitro
+.cache
+.output
+
+# Misc
+.DS_Store
+*.pem
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
 # OS
 .DS_Store
@@ -55,10 +82,6 @@ coverage/
 .coverage
 htmlcov/
 .pytest_cache/
-
-# Production
-build/
-.env.production
 
 # Logs
 logs/
