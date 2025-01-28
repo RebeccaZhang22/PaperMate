@@ -25,7 +25,7 @@ function App() {
       paperMateAPI.getPapers({
         page: currentPage,
         keyword: searchKeyword,
-        published_filter: "yes",
+        is_published: true,
       }),
   });
 
@@ -239,10 +239,14 @@ function App() {
         >
           上一页
         </Button>
-        <span className="px-4 py-2">第 {currentPage} 页</span>
+        <span className="px-4 py-2">
+          第 {currentPage} 页 / 共 {papersResponse?.total_pages || 1} 页
+        </span>
         <Button
           onClick={() => setCurrentPage((p) => p + 1)}
-          disabled={isLoading}
+          disabled={
+            isLoading || (papersResponse?.total_pages || 0) <= currentPage
+          }
         >
           下一页
         </Button>

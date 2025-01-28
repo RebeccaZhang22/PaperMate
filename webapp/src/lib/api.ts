@@ -15,9 +15,10 @@ export interface Paper {
 
 export interface PaginatedPapersResponse {
   page_obj: Paper[];
+  total_pages: number;
   keywords: string[];
   selected_keyword: string;
-  published_filter: "no" | "yes";
+  is_published: boolean;
   title_search: string;
 }
 
@@ -29,7 +30,7 @@ export interface SimilarPapersResponse {
 export interface GetPapersParams {
   page: number;
   keyword: string;
-  published_filter: "no" | "yes";
+  is_published: boolean;
   title_search?: string;
 }
 
@@ -69,7 +70,7 @@ export class PaperMateAPI {
         params: {
           page: params.page,
           keyword: params.keyword,
-          published_filter: params.published_filter,
+          is_published: params.is_published,
           title_search: params.title_search,
         },
       });

@@ -29,20 +29,20 @@ def paper_list(request):
     GET 参数:
     - page: 页码
     - keyword: 搜索关键词
-    - published_filter: 是否只显示已发布论文 (yes/no)
+    - is_published: 是否只显示已发布论文 (true/false)
     - title_search: 标题搜索
     """
     # 获取查询参数
     page = request.GET.get('page', 1)
     keyword = request.GET.get('keyword', '')
-    published_filter = request.GET.get('published_filter', 'no')
+    is_published = request.GET.get('is_published', 'false').lower() == 'true'
     title_search = request.GET.get('title_search', '').strip()
     
     # 基础查询集
     filtered_papers = Papers.objects.all().order_by('-published')
     
     # 应用过滤条件
-    if published_filter == 'yes':
+    if is_published:
         filtered_papers = filter_papers_by_year(filtered_papers)
         
     if keyword:
@@ -55,14 +55,16 @@ def paper_list(request):
         filtered_papers = filtered_papers.filter(title__icontains=title_search)
     
     # 分页
-    page_obj = get_paginated_context(filtered_papers, page)
+    paginator = Paginator(filtered_papers, 20)
+    page_obj = paginator.get_page(page)
     
     # 返回响应
     return Response({
         'page_obj': PaperSerializer(page_obj, many=True).data,
+        'total_pages': paginator.num_pages,
         'keywords': ['forecasting', 'generation', 'augmentation', 'anomaly detection', 'generative model'],
         'selected_keyword': keyword,
-        'published_filter': published_filter,
+        'is_published': is_published,
         'title_search': title_search,
     })
 
