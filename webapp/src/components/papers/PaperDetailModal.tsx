@@ -2,12 +2,14 @@ import { Paper } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { motion, AnimatePresence } from "framer-motion";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface PaperDetailModalProps {
   paper: Paper | null;
   recommendedPapers: Paper[];
   onClose: () => void;
   onPaperClick: (paper: Paper) => void;
+  isLoadingRecommendations?: boolean;
 }
 
 export function PaperDetailModal({
@@ -15,7 +17,18 @@ export function PaperDetailModal({
   recommendedPapers,
   onClose,
   onPaperClick,
+  isLoadingRecommendations = false,
 }: PaperDetailModalProps) {
+  const RecommendationSkeleton = () => (
+    <Card className="cursor-default">
+      <CardHeader className="p-4 space-y-3">
+        <Skeleton className="h-6 w-[80%]" />
+        <Skeleton className="h-4 w-[90%]" />
+        <Skeleton className="h-3 w-[60%]" />
+      </CardHeader>
+    </Card>
+  );
+
   return (
     <AnimatePresence mode="wait">
       {paper && (
@@ -89,22 +102,32 @@ export function PaperDetailModal({
                 <div className="w-full lg:w-80 border-t lg:border-l lg:border-t-0 pt-6 lg:pt-0 lg:pl-6">
                   <h3 className="font-semibold mb-4">相关论文</h3>
                   <div className="space-y-4">
-                    {recommendedPapers.map((paper) => (
-                      <Card
-                        key={paper.entry_id}
-                        className="cursor-pointer hover:shadow-md transition-shadow"
-                        onClick={() => onPaperClick(paper)}
-                      >
-                        <CardHeader className="p-4">
-                          <CardTitle className="text-sm">
-                            {paper.title}
-                          </CardTitle>
-                          <p className="text-xs text-muted-foreground line-clamp-2">
-                            {paper.abstract}
-                          </p>
-                        </CardHeader>
-                      </Card>
-                    ))}
+                    {isLoadingRecommendations ? (
+                      <>
+                        <RecommendationSkeleton />
+                        <RecommendationSkeleton />
+                        <RecommendationSkeleton />
+                        <RecommendationSkeleton />
+                        <RecommendationSkeleton />
+                      </>
+                    ) : (
+                      recommendedPapers.map((paper) => (
+                        <Card
+                          key={paper.entry_id}
+                          className="cursor-pointer hover:shadow-md transition-shadow"
+                          onClick={() => onPaperClick(paper)}
+                        >
+                          <CardHeader className="p-4">
+                            <CardTitle className="text-sm">
+                              {paper.title}
+                            </CardTitle>
+                            <p className="text-xs text-muted-foreground line-clamp-2">
+                              {paper.abstract}
+                            </p>
+                          </CardHeader>
+                        </Card>
+                      ))
+                    )}
                   </div>
                 </div>
               </div>
