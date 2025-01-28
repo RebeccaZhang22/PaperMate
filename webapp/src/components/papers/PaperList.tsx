@@ -1,17 +1,17 @@
-import { Paper, paperMateAPI } from "@/lib/api";
+import { Paper } from "@/lib/api";
 import { PaperCard } from "./PaperCard";
-import { useInfiniteQuery, useQueryClient } from "@tanstack/react-query";
-import { useEffect, useRef } from "react";
+import { useRef } from "react";
 import { Loader2 } from "lucide-react";
 import { motion } from "framer-motion";
 import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
+import { usePaperQuery } from "@/hooks/usePaperQuery";
+import { useEffect } from "react";
 
 interface PaperListProps {
   onPaperClick: (paper: Paper) => void;
 }
 
 export function PaperList({ onPaperClick }: PaperListProps) {
-  const queryClient = useQueryClient();
   const loadMoreRef = useRef<HTMLDivElement>(null);
 
   const {
@@ -21,28 +21,7 @@ export function PaperList({ onPaperClick }: PaperListProps) {
     isFetchingNextPage,
     isLoading,
     error,
-  } = useInfiniteQuery({
-    queryKey: ["papers"],
-    queryFn: async ({ pageParam = 1 }) => {
-      const searchParams = queryClient.getQueryData<{ keyword: string }>([
-        "searchParams",
-      ]);
-      const response = await paperMateAPI.getPapers({
-        page: pageParam,
-        keyword: searchParams?.keyword || "",
-        is_published: true,
-      });
-      return {
-        ...response,
-        currentPage: pageParam,
-      };
-    },
-    getNextPageParam: (lastPage) =>
-      lastPage.currentPage < lastPage.total_pages
-        ? lastPage.currentPage + 1
-        : undefined,
-    initialPageParam: 1,
-  });
+  } = usePaperQuery();
 
   // 使用 Intersection Observer 监听加载更多
   useEffect(() => {
