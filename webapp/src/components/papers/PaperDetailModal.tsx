@@ -27,7 +27,7 @@ export function PaperDetailModal({
             initial={{ opacity: 0 }}
             animate={{ opacity: 0.5 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
+            transition={{ duration: 0.2, type: "spring" }}
             className="fixed inset-0 bg-black"
             onClick={onClose}
           />
@@ -35,7 +35,12 @@ export function PaperDetailModal({
           {/* 内容卡片 */}
           <motion.div
             layoutId={`card-${paper.entry_id}`}
-            transition={{ duration: 0.3 }}
+            transition={{
+              duration: 0.3,
+              type: "spring",
+              stiffness: 300,
+              damping: 30,
+            }}
             className="fixed inset-4 lg:inset-[10%] bg-background rounded-lg shadow-xl overflow-y-auto"
           >
             <div className="h-full p-6">
