@@ -81,6 +81,12 @@ export function PaperDetailModal({
                       </p>
                     </div>
                     <div>
+                      <h4 className="font-semibold mb-2">comment</h4>
+                      <p className="text-sm leading-relaxed">
+                        {paper.comment}
+                      </p>
+                    </div>
+                    <div>
                       <h4 className="font-semibold mb-2">分类</h4>
                       <p className="text-sm">{paper.categories}</p>
                     </div>

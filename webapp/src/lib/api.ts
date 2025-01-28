@@ -30,7 +30,7 @@ export interface SimilarPapersResponse {
 export interface GetPapersParams {
   page: number;
   keyword: string;
-  is_published: boolean;
+  is_published: string;
   title_search?: string;
 }
 

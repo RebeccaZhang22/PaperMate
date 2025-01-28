@@ -23,15 +23,21 @@ export function PaperList({ onPaperClick }: PaperListProps) {
     error,
   } = useInfiniteQuery({
     queryKey: ["papers"],
-    queryFn: async ({ pageParam = 1 }) => {
-      const searchParams = queryClient.getQueryData<{ keyword: string }>([
+    queryFn: async ({ pageParam = 1 }) => { 
+      const searchParams = queryClient.getQueryData<{ searchTitle: string, keyword: string , publishedFilter: string}>([
         "searchParams",
       ]);
       const response = await paperMateAPI.getPapers({
         page: pageParam,
         keyword: searchParams?.keyword || "",
-        is_published: true,
+        is_published: searchParams?.publishedFilter || "0",
+        title_search: searchParams?.searchTitle || "",
       });
+
+      // 调试并确保 keywords 存在
+      queryClient.setQueryData(["keywords"], response.keywords);
+      queryClient.setQueryData(["selectedKeywords"], response.selected_keyword);
+
       return {
         ...response,
         currentPage: pageParam,

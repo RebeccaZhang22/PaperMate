@@ -12,6 +12,7 @@ from rest_framework import status
 
 def filter_papers_by_year(papers_queryset):
     return papers_queryset.filter(
+        Q(comment__icontains='2022') | 
         Q(comment__icontains='2023') | 
         Q(comment__icontains='2024') | 
         Q(comment__icontains='2025')
@@ -29,20 +30,20 @@ def paper_list(request):
     GET 参数:
     - page: 页码
     - keyword: 搜索关键词
-    - is_published: 是否只显示已发布论文 (true/false)
+    - is_published: 是否只显示已发布论文 ("1"/"0")
     - title_search: 标题搜索
     """
     # 获取查询参数
     page = request.GET.get('page', 1)
     keyword = request.GET.get('keyword', '')
-    is_published = request.GET.get('is_published', 'false').lower() == 'true'
+    is_published = request.GET.get('is_published', '0')
     title_search = request.GET.get('title_search', '').strip()
     
     # 基础查询集
     filtered_papers = Papers.objects.all().order_by('-published')
     
     # 应用过滤条件
-    if is_published:
+    if is_published == "1":
         filtered_papers = filter_papers_by_year(filtered_papers)
         
     if keyword:
