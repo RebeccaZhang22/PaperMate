@@ -18,7 +18,7 @@ export function PaperList({ papers, isLoading, onPaperClick }: PaperListProps) {
   }
 
   return (
-    <div className="columns-1 sm:columns-2 lg:columns-3 gap-6 space-y-6 [&>*]:break-inside-avoid">
+    <div className="columns-2 sm:columns-2 lg:columns-3 gap-6 space-y-6 [&>*]:break-inside-avoid">
       {papers.map((paper) => (
         <PaperCard key={paper.entry_id} paper={paper} onClick={onPaperClick} />
       ))}

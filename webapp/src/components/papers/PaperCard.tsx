@@ -18,7 +18,7 @@ export function PaperCard({ paper, onClick }: PaperCardProps) {
       <Card>
         <CardHeader>
           <CardTitle className="text-lg">{paper.title}</CardTitle>
-          <p className="text-sm text-muted-foreground">{paper.authors}</p>
+          <p className="text-sm text-muted-foreground ">{paper.authors}</p>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground line-clamp-3">
@@ -28,7 +28,17 @@ export function PaperCard({ paper, onClick }: PaperCardProps) {
             <div className="text-sm text-muted-foreground">
               发布时间: {new Date(paper.published).toLocaleDateString()}
             </div>
-            <div className="space-x-2">
+            <div className="space-x-2 w-full flex md:w-auto justify-between md:justify-end">
+              <Button
+                variant="outline"
+                className="md:hidden"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onClick(paper);
+                }}
+              >
+                查看详情
+              </Button>
               <Button
                 variant="outline"
                 asChild
