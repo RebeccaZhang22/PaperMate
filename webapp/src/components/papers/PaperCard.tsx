@@ -12,37 +12,37 @@ export function PaperCard({ paper, onClick }: PaperCardProps) {
   return (
     <motion.div
       layoutId={`card-${paper.entry_id}`}
-      className="mb-6 hover:shadow-lg transition-shadow cursor-pointer"
       onClick={() => onClick(paper)}
     >
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-lg">{paper.title}</CardTitle>
-          <p className="text-sm text-muted-foreground ">{paper.authors}</p>
+      <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
+        <CardHeader className="p-4 pb-2">
+          <CardTitle className="text-base ">{paper.title}</CardTitle>
+          <p className="text-xs text-muted-foreground line-clamp-3">
+            {paper.authors}
+          </p>
         </CardHeader>
-        <CardContent>
-          <p className="text-sm text-muted-foreground line-clamp-3">
+        <CardContent className="p-4 pt-2 space-y-3">
+          <p className="text-xs text-muted-foreground line-clamp-3">
             {paper.abstract}
           </p>
-          <div className="flex items-center justify-between mt-4">
-            <div className="text-sm text-muted-foreground">
-              发布时间: {new Date(paper.published).toLocaleDateString()}
+          <div className="flex items-center justify-between text-xs">
+            <div className="text-muted-foreground">
+              {new Date(paper.published).toLocaleDateString()}
             </div>
-            <div className="space-x-2 w-full flex md:w-auto justify-between md:justify-end">
-              <Button
-                variant="outline"
-                asChild
-                onClick={(e) => e.stopPropagation()}
+            <Button
+              variant="outline"
+              size="sm"
+              asChild
+              onClick={(e) => e.stopPropagation()}
+            >
+              <a
+                href={paper.entry_id}
+                target="_blank"
+                rel="noopener noreferrer"
               >
-                <a
-                  href={paper.entry_id}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                >
-                  查看原文
-                </a>
-              </Button>
-            </div>
+                查看原文
+              </a>
+            </Button>
           </div>
         </CardContent>
       </Card>
