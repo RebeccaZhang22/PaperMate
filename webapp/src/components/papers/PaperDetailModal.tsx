@@ -1,24 +1,30 @@
-import { Paper } from "@/lib/api";
+import { Paper, paperMateAPI } from "@/lib/api";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle } from "@/components/ui/card";
 import { motion, AnimatePresence } from "framer-motion";
 import { Skeleton } from "@/components/ui/skeleton";
+import { useQuery } from "@tanstack/react-query";
 
 interface PaperDetailModalProps {
   paper: Paper | null;
-  recommendedPapers: Paper[];
   onClose: () => void;
   onPaperClick: (paper: Paper) => void;
-  isLoadingRecommendations?: boolean;
 }
 
 export function PaperDetailModal({
   paper,
-  recommendedPapers,
   onClose,
   onPaperClick,
-  isLoadingRecommendations = false,
 }: PaperDetailModalProps) {
+  // 获取推荐文章
+  const { data: recommendedPapers, isLoading: isLoadingRecommendations } =
+    useQuery({
+      queryKey: ["recommendedPapers", paper?.entry_id],
+      queryFn: () => paperMateAPI.getRecommendedPapers(paper!.entry_id),
+      enabled: !!paper,
+      select: (data) => data.recommended_papers,
+    });
+
   const RecommendationSkeleton = () => (
     <Card className="cursor-default">
       <CardHeader className="p-4 space-y-3">
@@ -107,11 +113,9 @@ export function PaperDetailModal({
                         <RecommendationSkeleton />
                         <RecommendationSkeleton />
                         <RecommendationSkeleton />
-                        <RecommendationSkeleton />
-                        <RecommendationSkeleton />
                       </>
                     ) : (
-                      recommendedPapers.map((paper) => (
+                      recommendedPapers?.map((paper) => (
                         <Card
                           key={paper.entry_id}
                           className="cursor-pointer hover:shadow-md transition-shadow"

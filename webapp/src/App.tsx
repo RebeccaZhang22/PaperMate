@@ -11,9 +11,6 @@ function App() {
   const [searchKeyword, setSearchKeyword] = useState("");
   const [selectedPaperForDetail, setSelectedPaperForDetail] =
     useState<Paper | null>(null);
-  const [recommendedPapers, setRecommendedPapers] = useState<Paper[]>([]);
-  const [isLoadingRecommendations, setIsLoadingRecommendations] =
-    useState(false);
 
   // 获取论文列表
   const {
@@ -29,27 +26,6 @@ function App() {
         is_published: true,
       }),
   });
-
-  // 获取推荐文章
-  const getRecommendedPapers = async (paper: Paper) => {
-    setRecommendedPapers([]);
-    setIsLoadingRecommendations(true);
-    try {
-      const response = await paperMateAPI.getRecommendedPapers(paper.entry_id);
-      setRecommendedPapers(response.recommended_papers);
-    } catch (error) {
-      console.error("获取推荐论文失败:", error);
-      setRecommendedPapers([]);
-    } finally {
-      setIsLoadingRecommendations(false);
-    }
-  };
-
-  // 处理论文点击
-  const handlePaperClick = (paper: Paper) => {
-    setSelectedPaperForDetail(paper);
-    getRecommendedPapers(paper);
-  };
 
   if (error) {
     return (
@@ -67,16 +43,14 @@ function App() {
         <PaperList
           papers={papersResponse?.page_obj || []}
           isLoading={isLoading}
-          onPaperClick={handlePaperClick}
+          onPaperClick={setSelectedPaperForDetail}
         />
       </main>
 
       <PaperDetailModal
         paper={selectedPaperForDetail}
-        recommendedPapers={recommendedPapers}
         onClose={() => setSelectedPaperForDetail(null)}
-        onPaperClick={handlePaperClick}
-        isLoadingRecommendations={isLoadingRecommendations}
+        onPaperClick={setSelectedPaperForDetail}
       />
 
       <Pagination
