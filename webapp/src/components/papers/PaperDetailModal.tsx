@@ -16,8 +16,6 @@ export function PaperDetailModal({
   onClose,
   onPaperClick,
 }: PaperDetailModalProps) {
-  if (!paper) return null;
-
   return (
     <AnimatePresence mode="wait">
       {paper && (
