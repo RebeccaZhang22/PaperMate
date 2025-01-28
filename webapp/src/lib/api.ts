@@ -46,6 +46,12 @@ const axiosInstance = axios.create({
   },
 });
 
+// 添加请求拦截器模拟延迟
+axiosInstance.interceptors.request.use(async (config) => {
+  await new Promise((resolve) => setTimeout(resolve, 500)); 
+  return config;
+});
+
 /**
  * PaperMate API 类
  * 提供论文相关的 API 接口
